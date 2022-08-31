@@ -1,9 +1,8 @@
-import React from 'react'
+import React,{memo} from 'react'
 
-function ThumbDetail({ image_url, title, population, region, capital,id }) {
-    console.log(id);
+function ThumbDetail({ image_url, title, population, region, capital,onClick }) {
     return (
-        <div className="container rounded-lg shadow-lg bg-white dark:bg-gray-700 dark:text-white pb-4">
+        <div className="container rounded-lg shadow-lg bg-white dark:bg-gray-700 dark:text-white pb-4" onClick={onClick}>
             <img src={image_url} className="h-1/2 w-full rounded-tl-lg rounded-tr-lg" alt={title} />
             <div className="p-4">
                 <h3 className="font-bold mb-4">{title}</h3>
@@ -15,4 +14,4 @@ function ThumbDetail({ image_url, title, population, region, capital,id }) {
     )
 }
 
-export default ThumbDetail
+export default memo (ThumbDetail);

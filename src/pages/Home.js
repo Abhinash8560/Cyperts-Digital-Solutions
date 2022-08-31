@@ -2,25 +2,25 @@ import React, { useEffect, useState } from "react";
 import { Link,useNavigate,useLocation } from "react-router-dom";
 import ThumbDetail from "../components/ThumbDetail";
 import axios from "axios";
-import "./Details.js"
-import Details from "./Details.js";
+
 
 function Home() {
     const navigate = useNavigate()
     const location = useLocation()
-    console.log(location);
+    // console.log(location);
   const [countries, setCountries] = useState([]);
   const [mode, setMode] = useState(true);
   const [id,setId] = useState(null)
-  const [data,setData] = useState("abhijeet")
   const [toggleBtn, setToggleBtn] = useState(
     '<i class="far fa-sun"></i> Light Mode'
   );
+  
   const redirect = (id)=>{
     setId(id)
     navigate('/details', {state: { test: id}})
   }
   const result = async () => {
+    
     axios
       .get("https://restcountries.com/v2/all")
       .then((res) => {
@@ -50,19 +50,32 @@ function Home() {
       setMode((current) => (current = !current));
     }
   };
-
+/*filter operation based on region */
   const filterByRegion = async (region) => {
     if (region === "") return;
     const res = await axios(`https://restcountries.com/v2/region/${region}`);
     await setCountries(res.data);
   };
-  // https://restcountries.com/v2/name/{name}
+
+
+  /*optimizing search functionality using debouncing */
+  function myDebounce(call,d){
+    let timer;
+    return function(...args){
+        if(timer) clearTimeout(timer);
+        setTimeout(() => {
+          call()
+        },d)
+    }
+  }
+//   const searchFunction=myDebounce(searchCountry,1000)
+
+  /*search operation based on country name */
   const searchCountry = async (name) => {
+    myDebounce(myDebounce,2000);
     if (name.length < 3 || name === "") return;
-    const res = await fetch(`https://restcountries.com/v2/name/${name}`);
-    const data = await res.json();
-    await console.log(data);
-    await setCountries(data);
+    const res = await axios(`https://restcountries.com/v2/name/${name}`);
+    await setCountries(res.data);
   };
   return (
     <div className="bg-gray-100 dark:bg-gray-800 dark:text-white">
@@ -91,17 +104,17 @@ function Home() {
         >
           <option value="">Filter by Region</option>
           <option value="africa">Africa</option>
-          <option value="america">America</option>
+          <option value="americas">America</option>
           <option value="asia">Asia</option>
           <option value="europe">Europe</option>
           <option value="oceania">Oceania</option>
         </select>
       </div>
       <div className="container grid grid-cols-4 gap-16 mx-auto" >
-        {countries.map((country, index) => (
-          <Link to={{ pathname: "details", state: country }} key={index}>
+        {countries.length>0? countries.map((country, index) => (
+           <div key={index}>
             <ThumbDetail
-            onClick={()=>redirect(country)}
+              onClick={()=>redirect(country)}
               title={country.name}
               id={id}
               image_url={country.flag}
@@ -109,9 +122,27 @@ function Home() {
               region={country.region}
               capital={country.capital}
             />
-           
-          </Link>
-        ))}
+           </div>
+        
+        )):                   
+        <div class="border border-blue-300 shadow rounded-md p-4 max-w-sm w-full mx-auto">
+  <div class="animate-pulse flex space-x-4">
+    <div class="rounded-full bg-slate-200 h-10 w-10"></div>
+    <div class="flex-1 space-y-6 py-1">
+      <div class="h-2 bg-slate-200 rounded"></div>
+      <div class="space-y-3">
+        <div class="grid grid-cols-3 gap-4">
+          <div class="h-2 bg-slate-200 rounded col-span-2"></div>
+          <div class="h-2 bg-slate-200 rounded col-span-1"></div>
+        </div>
+        <div class="h-2 bg-slate-200 rounded"></div>
+      </div>
+    </div>
+  </div>
+  loading
+</div>
+        
+        }
       </div>
     </div>
   );
